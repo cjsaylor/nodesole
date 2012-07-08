@@ -18,6 +18,7 @@
 				color: #eee;
 				overflow: auto;
 				min-height: 400px;
+				max-height: 400px;
 			}
 			#command {
 				background-color: #333;
@@ -38,6 +39,7 @@
 				});
 				socket.on('command-response', function(data) {
 					$output.append($('<p/>').text(data.message));
+					$output.scrollTop($output.prop('scrollHeight'));
 				});
 				socket.on('client-status', function(data) {
 					$notifications.append($('<p/>').text(data.message).css('color', data.type === 'connect' ? 'green' : 'gray'));
