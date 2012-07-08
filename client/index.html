@@ -1,0 +1,69 @@
+<html>
+	<head>
+		<title>Nodesole</title>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		<script src="config.js"></script>
+		<style>
+			.left {
+				width: 70%;
+				float: left;
+			}
+			.right {
+				width: 29%;
+				float: right;
+			}
+			.output {
+				background-color: #333;
+				color: #eee;
+				overflow: auto;
+				min-height: 400px;
+			}
+			#command {
+				background-color: #333;
+				color: #eee;
+				width: 100%;
+				height: 20px;
+				border: none;
+			}
+		</style>
+		<script>
+			var socket = io.connect(nodesole.server);
+			$(document).ready(function() {
+				var $output = $('.output'),
+					$cmd = $('#cmd'),
+					$notifications = $('.notifications');
+				socket.on('handshake', function (data) {
+					$output.append($('<p/>').text(data.message));
+				});
+				socket.on('command-response', function(data) {
+					$output.append($('<p/>').text(data.message));
+				});
+				socket.on('client-status', function(data) {
+					$notifications.append($('<p/>').text(data.message).css('color', data.type === 'connect' ? 'green' : 'gray'));
+				});
+				$cmd.on('submit', function(e) {
+					e.preventDefault();
+					socket.emit('command-request', {command: $('#command').val()});
+					$('#command').val('');
+				});
+				$output.on('click', function(e) {
+					$('#command').focus();
+				});
+			});
+			
+		</script>
+	</head>
+	<body>
+		<div class="left">
+			<div class="output"></div>
+			<form action="/" id="cmd" name="cmd" method="post">
+				<input type="text" name="command" id="command" placeholder="Type commands here..." autocomplete="off"/>
+			</form>
+		</div>
+		<div class="right">
+			<p>Notifications:</p>
+			<div class="notifications"></div>
+		</div>
+	</body>
+</html>
