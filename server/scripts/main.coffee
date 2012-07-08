@@ -1,9 +1,9 @@
 module.exports = (command) ->
   command.register 'command-request', (message) ->
-    if message.data.command is 'test'
-      message.sendAll {
-        message: 'Test out!'
-      }
+    if /^help/i.test(message.data.command) and not /^help /i.test(message.data.command)
+      helpText = "Nodesole help menu\n"
+      helpText += command.helpToString()
+      message.send(message.createMessageText helpText)
 
   command.register 'disconnect', (message) ->
     message.broadcast {

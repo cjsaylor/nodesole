@@ -14,14 +14,14 @@
 				float: right;
 			}
 			.output {
-				background-color: #333;
+				background-color: #555;
 				color: #eee;
 				overflow: auto;
 				min-height: 400px;
 				max-height: 400px;
 			}
 			#command {
-				background-color: #333;
+				background-color: #555;
 				color: #eee;
 				width: 100%;
 				height: 20px;
@@ -38,7 +38,7 @@
 					$output.append($('<p/>').text(data.message));
 				});
 				socket.on('command-response', function(data) {
-					$output.append($('<p/>').text(data.message));
+					$output.append($('<p/>').html(data.message));
 					$output.scrollTop($output.prop('scrollHeight'));
 				});
 				socket.on('client-status', function(data) {

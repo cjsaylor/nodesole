@@ -7,6 +7,10 @@ class Command
     'disconnect': []
   }
 
+  help = [
+    "\thelp - Display this help message\n"
+  ]
+
   constructor: ->
 
   register: (event, callback) ->
@@ -18,5 +22,13 @@ class Command
       _.each(events[event], (func) ->
         func(message)
       )
+
+  addHelpString: (str) ->
+    help.push(str)
+
+  helpToString: ->
+    helpStr = ''
+    helpStr += str for str in help
+    helpStr
 
 module.exports = Command

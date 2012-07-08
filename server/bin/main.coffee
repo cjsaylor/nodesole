@@ -31,7 +31,6 @@ io.sockets.on 'connection', (socket) ->
     command.trigger('command-request', message)
     if !message.isHandled()
       socket.emit 'command-response', { message: 'Invalid command: ' + data.command }
-      socket.broadcast.emit 'command-response', { message: 'Invalid command: ' + data.command }
 
   socket.on 'disconnect', (data) ->
     message = new Message(socket, 'client-status', data);
