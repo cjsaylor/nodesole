@@ -19,3 +19,4 @@ client/config.js
 
 server/scripts/*
 !server/scripts/main.coffee
+!server/scripts/chat.coffee
