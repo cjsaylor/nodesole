@@ -62,10 +62,12 @@
 					})
 					.on('keyup', function(e) {
 						var code = (e.keyCode ? e.keyCode : e.which);
-						if (code == 13) {
+						if (code == 13 && $chatInput.val().trim().length == 0) {
+							$chatInput.val('');
+						} else if (code == 13) {
 							$chatInputForm.submit();
 						}
-					});
+					})
 				$chatInputForm.on('submit', function(e) {
 					e.preventDefault();
 					socket.emit('chat-request', {username: username, message: $chatInput.val()});
