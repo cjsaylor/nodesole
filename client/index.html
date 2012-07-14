@@ -3,69 +3,99 @@
 		<title>Nodesole</title>
 		<script src="/socket.io/socket.io.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		<script src="jquery.terminal.min.js"></script>
 		<script src="config.js"></script>
+		<link href="jquery.terminal.css" rel="stylesheet" />
 		<style>
-			.left {
-				width: 70%;
-				float: left;
-			}
-			.right {
-				width: 29%;
-				float: right;
-			}
-			.output {
-				background-color: #555;
-				color: #eee;
-				overflow: auto;
-				min-height: 400px;
-				max-height: 400px;
-			}
-			#command {
-				background-color: #555;
-				color: #eee;
-				width: 100%;
-				height: 20px;
-				border: none;
-			}
+			body { padding: 0; margin: 0; font: 13px Helvetica,arial,freesans,clean,sans-serif; }
+			#terminal { height: 98%; width: 75%; float: left; }
+			#chat { float: left; background-color: white; padding: 0 10px; width: 20%}
+			#chat-output { height: 75%; overflow: auto; }
+			#chat-message { width: 200px; height: 100px; }
 		</style>
 		<script>
-			var socket = io.connect(nodesole.server);
 			$(document).ready(function() {
-				var $output = $('.output'),
-					$cmd = $('#cmd'),
-					$notifications = $('.notifications');
+				var terminal = null,
+					$chatInput = $('#chat-message'),
+					$chatInputForm = $('#chat-input-form'),
+					$chatOutput = $('#chat-output'),
+					echo = function(message, type) {
+						if (terminal === null) {
+							terminal = $('#terminal').terminal();
+						}
+						if (terminal !== null) {
+							switch (type) {
+								case 'error': terminal.error(String(message)); break;
+								case 'connect': terminal.echo(String(message)).css('color', 'green'); break;
+								case 'disconnect': terminal.echo(String(message)).css('color', 'gray'); break;
+								default:
+									terminal.echo(String(message));
+							}
+						}
+					};
+
+				// Setup terminal
+				$('#terminal')
+					.terminal(function(command, term) {
+						terminal = term;
+						if (command !== '') {
+							socket.emit('command-request', {command: command});
+						}
+					}, {
+						greetings: nodesole.motd,
+						prompt: nodesole.prompt
+					})
+					.on('click', function(e) {
+						e.preventDefault();
+						terminal.enable();
+					});
+
+				// Chat implementation (wip)
+				$chatInput
+					.on('click', function(e) {
+						e.preventDefault();
+						terminal.disable();
+					})
+					.on('blur', function(e) {
+						terminal.enable();
+					})
+					.on('keyup', function(e) {
+						var code = (e.keyCode ? e.keyCode : e.which);
+						if (code == 13) {
+							$chatInputForm.submit();
+						}
+					});
+				$chatInputForm.on('submit', function(e) {
+					e.preventDefault();
+					$chatInput.val('');
+					$chatOutput.append($('<p/>').text('Not implemented yet.'));
+					$chatOutput.scrollTop($chatOutput.prop('scrollHeight'));
+				});
+
+				// Server connection
+				var socket = io.connect(nodesole.server);
 				socket.on('handshake', function (data) {
-					$output.append($('<p/>').text(data.message));
+					echo(data.message);
 				});
 				socket.on('command-response', function(data) {
-					$output.append($('<p/>').html(data.message));
-					$output.scrollTop($output.prop('scrollHeight'));
+					echo(data.message, typeof data.type !== 'undefined' ? data.type : null);
 				});
 				socket.on('client-status', function(data) {
-					$notifications.append($('<p/>').text(data.message).css('color', data.type === 'connect' ? 'green' : 'gray'));
-				});
-				$cmd.on('submit', function(e) {
-					e.preventDefault();
-					socket.emit('command-request', {command: $('#command').val()});
-					$('#command').val('');
-				});
-				$output.on('click', function(e) {
-					$('#command').focus();
+					echo(data.message, typeof data.type !== 'undefined' ? data.type : null);
 				});
 			});
-			
 		</script>
 	</head>
 	<body>
-		<div class="left">
-			<div class="output"></div>
-			<form action="/" id="cmd" name="cmd" method="post">
-				<input type="text" name="command" id="command" placeholder="Type commands here..." autocomplete="off"/>
-			</form>
-		</div>
-		<div class="right">
-			<p>Notifications:</p>
-			<div class="notifications"></div>
+		<div id="terminal"></div>
+		<div id="chat">
+			<h2>Nodesole Chat</h2>
+			<div id="chat-output"></div>
+			<div id="chat-input">
+				<form action="/" id="chat-input-form" name="chat-input-form" method="post">
+					<textarea name="chat-message" id="chat-message" autocomplete="off"></textarea>
+				</form>
+			</div>
 		</div>
 	</body>
 </html>

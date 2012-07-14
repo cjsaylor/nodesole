@@ -1,5 +1,6 @@
 Fs = require 'fs'
 Path = require 'path'
+_ = require 'underscore'
 
 paths =
   config: Path.join __dirname, '..', 'config'
@@ -8,16 +9,25 @@ paths =
 
 config = require paths.config
 Message = require paths.srcDir + '/message';
-command = new (require paths.srcDir + '/command');
+command = new (require paths.srcDir + '/command')
 
 app = require('express').createServer()
+
 io = require('socket.io').listen app
+io.enable 'browser client minification' if config.socketio.minification
+io.enable 'browser client gzip' if config.socketio.gzip
+io.enable 'browser client etag' if config.socketio.etag
+io.set 'log level', config.socketio.logLevel
 
-app.get '/', (req, res) ->
-  res.sendfile(Path.join __dirname, '../..', 'client/index.html');
+clientAssets =
+  '/': 'index.html'
+  '/config.js': 'config.js'
+  '/jquery.terminal.min.js': 'js/lib/jquery.terminal.min.js',
+  '/jquery.terminal.css': 'css/jquery.terminal.css'
 
-app.get '/config.js', (req, res) ->
-  res.sendfile(Path.join __dirname, '../..', 'client/config.js');
+_.each clientAssets, (assetPath, location) ->
+  app.get location, (req, res) ->
+    res.sendfile(Path.join __dirname, '../..', 'client', assetPath)
 
 for file in Fs.readdirSync paths.scriptDir
   require(paths.scriptDir + '/' + file)(command)
@@ -30,7 +40,7 @@ io.sockets.on 'connection', (socket) ->
     message = new Message(socket, 'command-response', data);
     command.trigger('command-request', message)
     if !message.isHandled()
-      socket.emit 'command-response', { message: 'Invalid command: ' + data.command }
+      message.send { message: 'Invalid command: ' + data.command, type: 'error' }
 
   socket.on 'disconnect', (data) ->
     message = new Message(socket, 'client-status', data);

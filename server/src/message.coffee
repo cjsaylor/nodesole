@@ -1,9 +1,5 @@
 class Message
 
-  parseSpecialChars = (str) ->
-    str = str.replace /\t/gi, '&nbsp;&nbsp;&nbsp;&nbsp;'
-    str = str.replace /\n/gi, '<br>'
-
   constructor: (@socket, @event, @data) ->
 
   send: (packet, event) ->
@@ -23,7 +19,7 @@ class Message
   createMessageText: (message, type) ->
     type = type || 'none'
     return {
-      message: parseSpecialChars(message),
+      message: message,
       type: type,
       date: new Date().getTime()
     }
