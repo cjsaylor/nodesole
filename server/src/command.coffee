@@ -2,15 +2,16 @@ _ = require 'underscore'
 
 class Command
 
-  events = {
+  events =
     'command-request': [],
     'chat-request': [],
     'disconnect': []
-  }
 
   help = [
     "\thelp - Display this help message\n"
   ]
+
+  config = {}
 
   constructor: ->
 
@@ -26,6 +27,12 @@ class Command
 
   addHelpString: (str) ->
     help.push(str)
+
+  getConfig: (script, key) ->
+    config[script][key]
+
+  setConfig: (script, key, value) ->
+    config[script][key] = value
 
   helpToString: ->
     helpStr = ''
