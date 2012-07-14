@@ -37,10 +37,14 @@ io.sockets.on 'connection', (socket) ->
   socket.broadcast.emit 'client-status', { message: 'Client connected.', type: 'connect' }
 
   socket.on 'command-request', (data) ->
-    message = new Message(socket, 'command-response', data);
-    command.trigger('command-request', message)
+    message = new Message socket, 'command-response', data
+    command.trigger 'command-request', message
     if !message.isHandled()
       message.send { message: 'Invalid command: ' + data.command, type: 'error' }
+
+  socket.on 'chat-request', (data) ->
+    message = new Message socket, 'chat-response', data
+    command.trigger 'chat-request', message
 
   socket.on 'disconnect', (data) ->
     message = new Message(socket, 'client-status', data);

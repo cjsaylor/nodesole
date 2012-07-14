@@ -5,6 +5,16 @@ module.exports = (command) ->
       helpText += command.helpToString()
       message.send(message.createMessageText helpText)
 
+  command.register 'chat-request', (message) ->
+    message.broadcast {
+      username: message.data.username
+      message: message.data.message
+    }
+    message.send {
+      username: 'Me'
+      message: message.data.message
+    }
+
   command.register 'disconnect', (message) ->
     message.broadcast {
       message: 'Client disconnected.',

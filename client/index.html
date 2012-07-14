@@ -16,6 +16,7 @@
 		<script>
 			$(document).ready(function() {
 				var terminal = null,
+					username = 'Client#' + Math.round((Math.random() * 10000)),
 					$chatInput = $('#chat-message'),
 					$chatInputForm = $('#chat-input-form'),
 					$chatOutput = $('#chat-output'),
@@ -50,7 +51,7 @@
 						terminal.enable();
 					});
 
-				// Chat implementation (wip)
+				// Chat implementation
 				$chatInput
 					.on('click', function(e) {
 						e.preventDefault();
@@ -67,9 +68,8 @@
 					});
 				$chatInputForm.on('submit', function(e) {
 					e.preventDefault();
+					socket.emit('chat-request', {username: username, message: $chatInput.val()});
 					$chatInput.val('');
-					$chatOutput.append($('<p/>').text('Not implemented yet.'));
-					$chatOutput.scrollTop($chatOutput.prop('scrollHeight'));
 				});
 
 				// Server connection
@@ -79,6 +79,15 @@
 				});
 				socket.on('command-response', function(data) {
 					echo(data.message, typeof data.type !== 'undefined' ? data.type : null);
+				});
+				socket.on('chat-response', function(data) {
+					var now = new Date();
+					$chatOutput.append(
+						$('<p/>').text(
+							now.toTimeString() + ' - ' + data.username + ': ' + data.message
+						)
+					);
+					$chatOutput.scrollTop($chatOutput.prop('scrollHeight'));
 				});
 				socket.on('client-status', function(data) {
 					echo(data.message, typeof data.type !== 'undefined' ? data.type : null);

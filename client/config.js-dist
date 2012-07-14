@@ -1,5 +1,5 @@
 var nodesole = {
 	server: 'http://localhost:3000',
 	prompt: 'Nodesole $ ',
-	motd: 'Welcome to Nodesole: the collaborative web console tool.'
+	motd: 'Welcome to Nodesole: the collaborative web console tool.\n\nType "help" to bring up a help menu.\n\n'
 }

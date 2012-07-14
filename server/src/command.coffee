@@ -4,6 +4,7 @@ class Command
 
   events = {
     'command-request': [],
+    'chat-request': [],
     'disconnect': []
   }
 
