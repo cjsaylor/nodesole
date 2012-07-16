@@ -30,7 +30,7 @@ _.each clientAssets, (assetPath, location) ->
     res.sendfile(Path.join __dirname, '../..', 'client', assetPath)
 
 for file in Fs.readdirSync paths.scriptDir
-  require(paths.scriptDir + '/' + file)(command)
+  require(paths.scriptDir + '/' + file)(command) if Path.extname(file) is '.coffee'
 
 io.sockets.on 'connection', (socket) ->
   socket.emit 'handshake', message: 'Connected to host.'
