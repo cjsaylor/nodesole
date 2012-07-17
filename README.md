@@ -9,9 +9,18 @@ Nodesole is a collaborative web console tool with scriptable events.
 
 ## Installation
 
+You can install from npm:
+
+```shell
+npm install nodesole
+```
+
+Or from git:
+
 1. Clone repo to a directory
 1. Run `npm install`
-1. Copy distribution configuration to runnable configuration:
+
+In either case: copy distribution configuration to runnable configuration:
   * `cp server/config.coffee-dist server/config.coffee
   * `cp client/config.js-dist client/config.js
 
