@@ -23,7 +23,8 @@ clientAssets =
   '/': 'index.html'
   '/config.js': 'config.js'
   '/jquery.terminal.min.js': 'js/lib/jquery.terminal.min.js',
-  '/jquery.terminal.css': 'css/jquery.terminal.css'
+  '/jquery.terminal.css': 'css/jquery.terminal.css',
+  '/favicon.ico': 'favicon.ico'
 
 _.each clientAssets, (assetPath, location) ->
   app.get location, (req, res) ->
