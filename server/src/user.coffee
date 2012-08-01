@@ -4,6 +4,8 @@
 class User
   constructor: (@username) ->
 
+  setSessionId: (@sessionId) ->
+
   setClientId: (@clientId) ->
 
 module.exports = User

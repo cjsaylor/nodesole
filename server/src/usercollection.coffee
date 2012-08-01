@@ -15,15 +15,20 @@ class UserCollection
     @users.push user
 
   removeUser: (user) ->
+    users = @users
     _.each @users, (collectionUser, key) ->
-      delete @users[key] if collectionUser.username is user.username
+      delete users[key] if collectionUser.username is user.username
 
   getUser: (username) ->
     _.find @users, (collectionUser) ->
       return collectionUser.username is username
 
   getSessionUser: (sessionId) ->
-    _.find @users, (collectionuser) ->
+    _.find @users, (collectionUser) ->
       return collectionUser.sessionId is sessionId
+
+  getClientUser: (clientId) ->
+    _.find @users, (collectionUser) ->
+      return collectionUser.clientId is clientId
 
 module.exports = UserCollection

@@ -1,3 +1,6 @@
+#
+# Sample authorization.  This authorization plugin authorizes if the username isn't in the collection
+#
 User = require '../user'
 
 module.exports = (users, req) ->
@@ -10,4 +13,4 @@ module.exports = (users, req) ->
   catch e
     console.log e.message
     return false
-  true
+  user

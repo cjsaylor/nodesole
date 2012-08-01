@@ -4,6 +4,7 @@ Fs = require 'fs'
 Path = require 'path'
 _ = require 'underscore'
 express = require 'express'
+cookie = require 'cookie'
 
 class Main
 
@@ -37,6 +38,13 @@ class Main
     io.enable 'browser client gzip' if config.socketio.gzip
     io.enable 'browser client etag' if config.socketio.etag
     io.set 'log level', config.socketio.logLevel
+    io.set 'authorization', (data, accept) ->
+      if data.headers.cookie
+        data.sessionID = cookie.parse(data.headers.cookie)[config.sessionKey]
+        user = userCollection.getSessionUser data.sessionID
+        if not user?
+          return accept 'Unauthorized.', false
+        accept null, true
 
     # setup express middleware
     @app.use express.cookieParser()
@@ -44,6 +52,7 @@ class Main
     @app.use express.methodOverride()
     @app.use express.session
       secret: config.sessionSecret
+      key: config.sessionKey
 
   # Assign uri paths to client assets
   setupClient: ->
@@ -71,9 +80,11 @@ class Main
         user = require(auth)(userCollection, req)
       else
         console.log 'Configured authentication handler not found: ' + auth
-      if not user?
+      if user is false
         res.redirect '/login' 
       else
+        if not user.sessionId?
+          user.setSessionId req.sessionID
         res.redirect '/'
 
   # Register custom scripts in the script path
@@ -84,11 +95,16 @@ class Main
   # start the socket IO listener/emitter
   startIO: ->
     io.sockets.on 'connection', (socket) ->
-      
+      # Add socket client id to user object
+      user = userCollection.getSessionUser socket.handshake.sessionID
+      if user?
+        user.setClientId socket.id
       socket.emit 'handshake', message: 'Connected to host.'
       socket.broadcast.emit 'client-status', { message: 'Client connected.', type: 'connect' }
-    
+
       socket.on 'command-request', (data) ->
+        console.log userCollection
+        data.user = userCollection.getClientUser socket.id
         message = new Message socket, 'command-response', data
         command.trigger 'command-request', message
         if !message.isHandled()
@@ -99,6 +115,9 @@ class Main
         command.trigger 'chat-request', message
     
       socket.on 'disconnect', (data) ->
+        user = userCollection.getClientUser socket.id
+        if user?
+          userCollection.removeUser user
         message = new Message(socket, 'client-status', data);
         command.trigger('disconnect', message)
 
