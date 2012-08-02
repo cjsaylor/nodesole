@@ -6,6 +6,13 @@ _ = require 'underscore'
 express = require 'express'
 cookie = require 'cookie'
 
+socketLogLevels = [
+  'error',
+  'warn',
+  'info',
+  'debug'
+]
+
 class Main
 
   io = null
@@ -19,6 +26,7 @@ class Main
   Message = require paths.srcDir + '/message'
   UserCollection = require paths.srcDir + '/usercollection'
   command = new (require paths.srcDir + '/command')
+  logger = require paths.srcDir + '/logger'
 
   userCollection = new UserCollection()
 
@@ -37,13 +45,14 @@ class Main
     io.enable 'browser client minification' if config.socketio.minification
     io.enable 'browser client gzip' if config.socketio.gzip
     io.enable 'browser client etag' if config.socketio.etag
-    io.set 'log level', config.socketio.logLevel
+    io.set 'logger', {
+      debug: logger.debug, info: logger.info, warn: logger.warn, error: logger.error
+    }
+    io.set 'log level', socketLogLevels.indexOf config.logLevel
     io.set 'authorization', (data, accept) ->
       if data.headers.cookie
         data.sessionID = cookie.parse(data.headers.cookie)[config.sessionKey]
-        console.log data.sessionID
         user = userCollection.getSessionUser data.sessionID
-        console.log userCollection
         if not user?
           return accept 'Unauthorized.', false
         accept null, true
@@ -83,7 +92,7 @@ class Main
       if Path.existsSync(auth + '.coffee')
         user = require(auth)(userCollection, req)
       else
-        console.log 'Configured authentication handler not found: ' + auth
+        logger.error 'Configured authentication handler not found: ' + auth
       if user is false
         res.redirect '/login' 
       else
@@ -133,7 +142,7 @@ class Main
     @.setupRoutes()
     @.setupCustomScripts()
     @.startIO()
-    console.log 'Nodesole listening on port ' + config.port
+    logger.info 'Nodesole listening on port ' + config.port
     @app.listen config.port
 
 module.exports = main = new Main()

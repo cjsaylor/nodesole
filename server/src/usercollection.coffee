@@ -17,7 +17,6 @@ class UserCollection
 
   # When authentication is unneccessary, adds an anonymous user to the collection
   addAnonymousUser: (sessionId) ->
-    console.log sessionId
     username = 'Client #' + ('00000' + Math.round(Math.random() * 1000, 0)).slice(-5)
     user = new User(username)
     user.setSessionId sessionId
