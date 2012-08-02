@@ -2,8 +2,11 @@ module.exports =
   port: 3000
   sessionSecret: ''
   sessionKey: 'nodesole.session'
+  logLevel: 'debug'
+  authentication:
+    enabled: false
+    handler: 'openauth'
   socketio: # see https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
-    logLevel: 1 # default (error)
     gzip: true
     etag: true
     minification: true
