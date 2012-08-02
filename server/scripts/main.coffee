@@ -7,7 +7,7 @@ module.exports = (command) ->
 
   command.register 'chat-request', (message) ->
     message.broadcast {
-      username: message.data.username
+      username: message.data.user.username
       message: message.data.message
     }
     message.send {

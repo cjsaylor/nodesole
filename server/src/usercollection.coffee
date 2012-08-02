@@ -1,4 +1,5 @@
 _ = require 'underscore'
+User = require __dirname + '/user'
 #
 # Collection of User objects
 #
@@ -13,6 +14,14 @@ class UserCollection
     exists = @.getUser user.username
     throw { error: 'duplicate-user', message: 'Username is already in use.' } if exists
     @users.push user
+
+  # When authentication is unneccessary, adds an anonymous user to the collection
+  addAnonymousUser: (sessionId) ->
+    console.log sessionId
+    username = 'Client #' + ('00000' + Math.round(Math.random() * 1000, 0)).slice(-5)
+    user = new User(username)
+    user.setSessionId sessionId
+    @.addUser user
 
   removeUser: (user) ->
     users = @users

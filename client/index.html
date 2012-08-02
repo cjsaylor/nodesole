@@ -16,7 +16,6 @@
 		<script>
 			$(document).ready(function() {
 				var terminal = null,
-					username = 'Client#' + Math.round((Math.random() * 10000)),
 					$chatInput = $('#chat-message'),
 					$chatInputForm = $('#chat-input-form'),
 					$chatOutput = $('#chat-output'),
@@ -71,7 +70,7 @@
 					})
 				$chatInputForm.on('submit', function(e) {
 					e.preventDefault();
-					socket.emit('chat-request', {username: username, message: $chatInput.val()});
+					socket.emit('chat-request', {message: $chatInput.val()});
 					$chatInput.val('');
 				});
 

@@ -41,7 +41,9 @@ class Main
     io.set 'authorization', (data, accept) ->
       if data.headers.cookie
         data.sessionID = cookie.parse(data.headers.cookie)[config.sessionKey]
+        console.log data.sessionID
         user = userCollection.getSessionUser data.sessionID
+        console.log userCollection
         if not user?
           return accept 'Unauthorized.', false
         accept null, true
@@ -67,6 +69,8 @@ class Main
       # Check for authentication
       if config.authentication.enabled
         return res.redirect '/login' if not req.session.auth?
+      else
+        userCollection.addAnonymousUser req.sessionID
       res.sendfile(Path.join __dirname, '../..', 'client/index.html')
 
     @app.get '/login', (req, res) ->
@@ -102,15 +106,17 @@ class Main
       socket.emit 'handshake', message: 'Connected to host.'
       socket.broadcast.emit 'client-status', { message: 'Client connected.', type: 'connect' }
 
+      # User input from the console
       socket.on 'command-request', (data) ->
-        console.log userCollection
         data.user = userCollection.getClientUser socket.id
         message = new Message socket, 'command-response', data
         command.trigger 'command-request', message
         if !message.isHandled()
           message.send { message: 'Invalid command: ' + data.command, type: 'error' }
-    
+
+      # User input from the chat input
       socket.on 'chat-request', (data) ->
+        data.user = userCollection.getClientUser socket.id
         message = new Message socket, 'chat-response', data
         command.trigger 'chat-request', message
     
