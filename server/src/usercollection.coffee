@@ -39,4 +39,10 @@ class UserCollection
     _.find @users, (collectionUser) ->
       return collectionUser.clientId is clientId
 
+  toString: ->
+    usernames = []
+    _.each @users, (collectionUser) ->
+      usernames.push collectionUser.username
+    usernames.toString()
+
 module.exports = UserCollection

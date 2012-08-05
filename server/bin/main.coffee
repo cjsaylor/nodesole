@@ -28,7 +28,9 @@ class Main
   command = new (require paths.srcDir + '/command')
   logger = require paths.srcDir + '/logger'
 
+  # Authenticated users initialization
   userCollection = new UserCollection()
+  command.setAuthenticatedUsers(userCollection);
 
   clientAssets =
     '/config.js': 'config.js'
@@ -113,7 +115,7 @@ class Main
       if user?
         user.setClientId socket.id
       socket.emit 'handshake', message: 'Connected to host.'
-      socket.broadcast.emit 'client-status', { message: 'Client connected.', type: 'connect' }
+      socket.broadcast.emit 'client-status', { message: user.username + ' connected.', type: 'connect' }
 
       # User input from the console
       socket.on 'command-request', (data) ->
@@ -129,12 +131,13 @@ class Main
         message = new Message socket, 'chat-response', data
         command.trigger 'chat-request', message
     
-      socket.on 'disconnect', (data) ->
-        user = userCollection.getClientUser socket.id
-        if user?
-          userCollection.removeUser user
+      socket.on 'disconnect', ->
+        data = {}
+        data.user = userCollection.getClientUser socket.id
         message = new Message(socket, 'client-status', data);
         command.trigger('disconnect', message)
+        if data.user?
+          userCollection.removeUser data.user
 
   # Prepare and start the application
   run: ->

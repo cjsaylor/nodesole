@@ -15,6 +15,8 @@ class Command
 
   constructor: ->
 
+  setAuthenticatedUsers: (@userCollection) ->
+
   register: (event, callback) ->
     if _.has(events, event)
       events[event].push callback
