@@ -4,7 +4,7 @@ module.exports = (command) ->
     help: /^help$/i
     nodesole_list: /^nodesole list$/i
 
-  command.addHelpString '\tnodesole list - List all authenticated users connected.'
+  command.addHelpString '\tnodesole list - List all authenticated users connected.\n'
 
   command.register 'command-request', (message) ->
     # help
