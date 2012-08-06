@@ -39,9 +39,8 @@ See [nodesole-scripts](https://github.com/cjsaylor/nodesole-scripts) for impleme
 
 ## Roadmap
 
-* User authentication (ldap hook, github oauth, etc)
 * Small json API for posting events to chat/console.
-* Organize client app with backbone.js.
+* Organize client app with jade.
 * Test cases for server app.
 * Logging throughout event structure of server app.
 
