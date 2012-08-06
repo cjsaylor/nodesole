@@ -9,6 +9,7 @@ module.exports =
     ldap:
       url: 'ldap://localhost:389/'
       bindFilter: 'CN={{username}}' # this is a normal bind syntax, {{username}} is replaced by the login
+	  connectionTimeout: 10 #seconds
   socketio: # see https://github.com/LearnBoost/Socket.IO/wiki/Configuring-Socket.IO
     gzip: true
     etag: true
