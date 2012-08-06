@@ -4,7 +4,8 @@
 User = require '../user'
 logger = require '../logger'
 
-module.exports = (users, req) ->
+module.exports = (users, req, callback) ->
+  logger.debug 'Authenticating using openauth...'
   # See if user is in the collection
   user = false
   try
@@ -13,5 +14,5 @@ module.exports = (users, req) ->
     req.session.auth = user
   catch e
     logger.error e.message
-    return false
-  user
+
+  callback(user)

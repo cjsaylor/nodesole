@@ -92,15 +92,15 @@ class Main
       # Inject configured authentication handler
       auth = Path.join paths.srcDir, 'authentication', config.authentication.handler
       if Path.existsSync(auth + '.coffee')
-        user = require(auth)(userCollection, req)
+        require(auth)(userCollection, req, (user) ->
+          if user is false
+            res.redirect '/login'
+          else
+            user.setSessionId req.sessionID
+            res.redirect '/'
+        )
       else
         logger.error 'Configured authentication handler not found: ' + auth
-      if user is false
-        res.redirect '/login' 
-      else
-        if not user.sessionId?
-          user.setSessionId req.sessionID
-        res.redirect '/'
 
   # Register custom scripts in the script path
   setupCustomScripts: ->
