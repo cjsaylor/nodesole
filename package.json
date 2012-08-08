@@ -1,6 +1,6 @@
 {
   "name": "nodesole",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "author": "Chris Saylor <cjsaylor@gmail.com>",
   "keywords": "nodesole plugin scripts console",
   "description": "Collaborative web console with extendable scripting",
