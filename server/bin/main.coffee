@@ -80,6 +80,7 @@ class Main
       # Check for authentication
       if config.authentication.enabled
         return res.redirect '/login' if not req.session.auth?
+        userCollection.restoreUser req.session.auth
       else
         userCollection.addAnonymousUser req.sessionID
       res.sendfile(Path.join __dirname, '../..', 'client/index.html')
@@ -134,9 +135,10 @@ class Main
       socket.on 'disconnect', ->
         data = {}
         data.user = userCollection.getClientUser socket.id
-        message = new Message(socket, 'client-status', data);
-        command.trigger('disconnect', message)
         if data.user?
+          message = new Message(socket, 'client-status', data);
+          command.trigger('disconnect', message)
+          logger.debug 'Removing user from collection: ' + socket.id
           userCollection.removeUser data.user
 
   # Prepare and start the application

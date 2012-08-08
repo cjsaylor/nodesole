@@ -30,7 +30,7 @@ module.exports = (users, req, callback) ->
       try
         user = new User(req.body.username);
         users.addUser(user);
-        req.session.auth = user
       catch e
-        # do nothing
+        logger.debug 'User already in collection.'
+      req.session.auth = user
     callback(user)

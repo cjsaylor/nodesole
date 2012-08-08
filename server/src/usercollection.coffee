@@ -20,24 +20,41 @@ class UserCollection
     username = 'Client #' + ('00000' + Math.round(Math.random() * 1000, 0)).slice(-5)
     user = new User(username)
     user.setSessionId sessionId
-    @.addUser user
+    try
+      @.addUser user
+    catch e
 
   removeUser: (user) ->
     users = @users
     _.each @users, (collectionUser, key) ->
       delete users[key] if collectionUser.username is user.username
 
+  # Restores a user to the collection based on session data
+  restoreUser: (session) ->
+    if not session.username?
+      return false
+    user = @.getUser session.username
+    if not user?
+      user = new User session.username
+      user.setSessionId session.sessionId
+    user.setClientId null
+    try
+      @.addUser user
+    catch e
+      #do nothing
+    user
+
   getUser: (username) ->
     _.find @users, (collectionUser) ->
-      return collectionUser.username is username
+      collectionUser.username is username
 
   getSessionUser: (sessionId) ->
     _.find @users, (collectionUser) ->
-      return collectionUser.sessionId is sessionId
+      collectionUser.sessionId is sessionId
 
   getClientUser: (clientId) ->
     _.find @users, (collectionUser) ->
-      return collectionUser.clientId is clientId
+      collectionUser.clientId is clientId
 
   toString: ->
     usernames = []
