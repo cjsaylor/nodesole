@@ -4,8 +4,7 @@ Nodesole is a collaborative web console tool with scriptable events.
 
 ## Requirements
 
-* Node: v0.6.10+
-* Coffee-script: v1.3.3+
+* Node: v0.10.4+
 
 ## Installation
 
@@ -21,13 +20,19 @@ Or from git:
 1. Run `npm install`
 
 In either case: copy distribution configuration to runnable configuration:
-  * `cp server/config.coffee-dist server/config.coffee
+  * `cp server/config.js-dist server/config.js
   * `cp client/config.js-dist client/config.js
 
 ## Running
 
 ```shell
-coffee server/bin/main.coffee
+coffee server/bin/main.js
+```
+
+or
+
+```shell
+npm start
 ```
 
 ## Extension System

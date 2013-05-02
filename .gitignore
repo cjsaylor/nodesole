@@ -14,7 +14,7 @@ results
 node_modules
 npm-debug.log
 
-server/config.coffee
+server/config.js
 client/config.js
 
 server/scripts/*
