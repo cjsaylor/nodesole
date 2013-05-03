@@ -1,6 +1,6 @@
 module.exports = {
 	port: 3000,
-	sessionSecret: '',
+	sessionSecret: 'supersecret',
 	sessionKey: 'nodesole.session',
 	logLevel: 'debug',
 	authentication: {
@@ -9,7 +9,7 @@ module.exports = {
 		ldap: {
 			url: 'ldap://localhost:389/',
 			bindFilter: 'CN={{username}}'
-		}
+		},
 		connectionTimeout: 10
 	},
 	socketio: {
