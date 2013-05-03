@@ -1,7 +1,6 @@
 var User, UserCollection, _;
 
 _ = require('underscore');
-
 User = require(__dirname + '/user');
 
 UserCollection = (function() {
@@ -71,7 +70,6 @@ UserCollection = (function() {
 
 	UserCollection.prototype.getSessionUser = function(sessionId) {
 		return _.find(this.users, function(collectionUser) {
-			console.log(collectionUser.sessionId, sessionId);
 			return collectionUser.sessionId === sessionId;
 		});
 	};

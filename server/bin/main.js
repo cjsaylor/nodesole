@@ -32,6 +32,7 @@ Main = (function() {
 		'/config.js': 'config.js',
 		'/jquery.terminal.min.js': 'js/lib/jquery.terminal.min.js',
 		'/jquery.terminal.css': 'css/jquery.terminal.css',
+		'/main.css': 'css/main.css',
 		'/favicon.ico': 'favicon.ico',
 		'/login': 'login.html'
 	};

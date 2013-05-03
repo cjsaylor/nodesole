@@ -1,20 +1,15 @@
+<!DOCTYPE html>
 <html>
 	<head>
 		<title>Nodesole</title>
 		<script src="/socket.io/socket.io.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<script src="jquery.terminal.min.js"></script>
 		<script src="config.js"></script>
 		<link href="jquery.terminal.css" rel="stylesheet" />
-		<style>
-			body { padding: 0; margin: 0; font: 13px Helvetica,arial,freesans,clean,sans-serif; }
-			#terminal { height: 98%; width: 75%; float: left; }
-			#chat { float: left; background-color: white; padding: 0 10px; width: 20%}
-			#chat-output { height: 75%; overflow: auto; }
-			#chat-message { width: 99%; height: 100px; }
-		</style>
+		<link href="main.css" rel="stylesheet" />
 		<script>
-			$(document).ready(function() {
+			$(function domReady() {
 				var terminal = null,
 					$chatInput = $('#chat-message'),
 					$chatInputForm = $('#chat-input-form'),
