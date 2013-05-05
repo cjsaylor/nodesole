@@ -30,6 +30,7 @@ Main = (function() {
 
 	clientAssets = {
 		'/config.js': 'config.js',
+		'/client.js': 'js/client.js',
 		'/jquery.terminal.min.js': 'js/lib/jquery.terminal.min.js',
 		'/jquery.terminal.css': 'css/jquery.terminal.css',
 		'/main.css': 'css/main.css',

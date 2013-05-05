@@ -2,95 +2,13 @@
 <html>
 	<head>
 		<title>Nodesole</title>
+		<link href="jquery.terminal.css" rel="stylesheet" />
+		<link href="main.css" rel="stylesheet" />
 		<script src="/socket.io/socket.io.js"></script>
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<script src="jquery.terminal.min.js"></script>
 		<script src="config.js"></script>
-		<link href="jquery.terminal.css" rel="stylesheet" />
-		<link href="main.css" rel="stylesheet" />
-		<script>
-			$(function domReady() {
-				var terminal = null,
-					$chatInput = $('#chat-message'),
-					$chatInputForm = $('#chat-input-form'),
-					$chatOutput = $('#chat-output'),
-					echo = function(message, type) {
-						if (terminal === null) {
-							terminal = $('#terminal').terminal();
-						}
-						if (terminal !== null) {
-							switch (type) {
-								case 'error': terminal.error(String(message)); break;
-								case 'connect': terminal.echo(String(message)).css('color', 'green'); break;
-								case 'info':
-								case 'disconnect': terminal.echo(String(message)).css('color', 'gray'); break;
-								default:
-									terminal.echo(String(message));
-							}
-						}
-					};
-
-				// Setup terminal
-				$('#terminal')
-					.terminal(function(command, term) {
-						terminal = term;
-						if (command !== '') {
-							socket.emit('command-request', {command: command});
-						}
-					}, {
-						greetings: nodesole.motd,
-						prompt: nodesole.prompt
-					})
-					.on('click', function(e) {
-						e.preventDefault();
-						terminal.enable();
-					});
-
-				// Chat implementation
-				$chatInput
-					.on('click', function(e) {
-						e.preventDefault();
-						terminal.disable();
-					})
-					.on('blur', function(e) {
-						terminal.enable();
-					})
-					.on('keyup', function(e) {
-						var code = (e.keyCode ? e.keyCode : e.which);
-						if (code == 13 && $chatInput.val().trim().length == 0) {
-							$chatInput.val('');
-						} else if (code == 13) {
-							$chatInputForm.submit();
-						}
-					})
-				$chatInputForm.on('submit', function(e) {
-					e.preventDefault();
-					socket.emit('chat-request', {message: $chatInput.val()});
-					$chatInput.val('');
-				});
-
-				// Server connection
-				var socket = io.connect(nodesole.server);
-				socket.on('handshake', function (data) {
-					echo(data.message);
-				});
-				socket.on('command-response', function(data) {
-					echo(data.message, typeof data.type !== 'undefined' ? data.type : null);
-				});
-				socket.on('chat-response', function(data) {
-					var now = new Date();
-					$chatOutput.append(
-						$('<p/>').text(
-							now.toTimeString() + ' - ' + data.username + ': ' + data.message
-						)
-					);
-					$chatOutput.scrollTop($chatOutput.prop('scrollHeight'));
-				});
-				socket.on('client-status', function(data) {
-					echo(data.message, typeof data.type !== 'undefined' ? data.type : null);
-				});
-			});
-		</script>
+		<script src="client.js"></script>
 	</head>
 	<body>
 		<div id="terminal"></div>
