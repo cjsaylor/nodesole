@@ -7,7 +7,6 @@ Fs = require('fs');
 Path = require('path');
 _ = require('underscore');
 express = require('express');
-cookie = require('cookie');
 socketLogLevels = ['error', 'warn', 'info', 'debug'];
 
 Main = (function() {
@@ -15,15 +14,15 @@ Main = (function() {
 
 	paths = {
 		config: Path.join(__dirname, '..', 'config'),
-		srcDir: Path.join(__dirname, '..', 'src'),
-		scriptDir: Path.join(__dirname, '..', 'scripts')
+		lib: Path.join(__dirname, '..', 'src'),
+		plugin: Path.join(__dirname, '..', 'scripts')
 	};
 
 	config = require(paths.config);
-	Message = require(paths.srcDir + '/message');
-	UserCollection = require(paths.srcDir + '/usercollection');
-	command = new (require(paths.srcDir + '/command'));
-	logger = require(paths.srcDir + '/logger');
+	Message = require(paths.lib + '/message');
+	UserCollection = require(paths.lib + '/usercollection');
+	command = new (require(paths.lib + '/command'));
+	logger = require(paths.lib + '/logger');
 	userCollection = new UserCollection();
 
 	command.setAuthenticatedUsers(userCollection);
@@ -66,9 +65,10 @@ Main = (function() {
 				data.sessionID = parsed[config.sessionKey] || null;
 				user = userCollection.getSessionUser(data.sessionID);
 				if (!(user != null)) {
-					return accept('Unauthorized.', false);
+					accept('Unauthorized.', false);
+					return;
 				}
-				return accept(null, true);
+				accept(null, true);
 			}
 		});
 		this.app.use(express.cookieParser(config.sessionSecret));
@@ -91,6 +91,7 @@ Main = (function() {
 	};
 
 	Main.prototype.setupRoutes = function() {
+		// Main route
 		this.app.get('/', function(req, res) {
 			if (config.authentication.enabled) {
 				if (!(req.session.auth != null)) {
@@ -102,6 +103,7 @@ Main = (function() {
 			}
 			res.sendfile(Path.join(__dirname, '../..', 'client/index.html'));
 		});
+		// Login route
 		this.app.get('/login', function(req, res) {
 			if (req.session.auth != null) {
 				res.redirect('/');
@@ -110,14 +112,14 @@ Main = (function() {
 		});
 		this.app.post('/login', function(req, res) {
 			var auth;
-			auth = Path.join(paths.srcDir, 'authentication', config.authentication.handler);
+			auth = Path.join(paths.lib, 'authentication', config.authentication.handler);
 			if (Path.existsSync(auth + '.js')) {
 				require(auth)(userCollection, req, function(user) {
 					if (user === false) {
-						return res.redirect('/login');
+						res.redirect('/login');
 					} else {
 						user.setSessionId(req.sessionID);
-						return res.redirect('/');
+						res.redirect('/');
 					}
 				});
 			} else {
@@ -127,16 +129,15 @@ Main = (function() {
 	};
 
 	Main.prototype.setupCustomScripts = function() {
-		var file, _i, _len, _ref, _results;
-		_ref = Fs.readdirSync(paths.scriptDir);
-		_results = [];
-		for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-			file = _ref[_i];
-			if (Path.extname(file) === '.coffee') {
-				_results.push(require(paths.scriptDir + '/' + file)(command));
+		var plugins = Fs.readdirSync(paths.plugin);
+		_.each(plugins, _.bind(function initializePlugins(plugin) {
+			if (Path.extname(plugin) !== '.coffee' && Path.extname(plugin) !== '.js') {
+				logger.debug('Plugin load skipping: ' + plugin);
+				return;
 			}
-		}
-		return _results;
+			logger.debug('Initializing plugin: ' + plugin);
+			require(paths.plugin + '/' + plugin)(command);
+		}, this));
 	};
 
 	Main.prototype.startIO = function() {

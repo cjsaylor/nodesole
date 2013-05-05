@@ -16,5 +16,6 @@ module.exports = {
 		gzip: true,
 		etag: true,
 		minification: true
-	}	
+	},
+	plugins: {}
 };
