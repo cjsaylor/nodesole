@@ -16,9 +16,9 @@ $(function domReady() {
 			if (terminal !== null) {
 				switch (type) {
 					case 'error': terminal.error(String(message)); break;
-					case 'connect': terminal.echo(String(message)).css('color', 'green'); break;
+					case 'connect': terminal.echo('[[i;#00FF00;#000]' + String(message)) + ']'; break;
 					case 'info':
-					case 'disconnect': terminal.echo(String(message)).css('color', 'gray'); break;
+					case 'disconnect': terminal.echo('[[i;#606060;#000]' + String(message)) + ']'; break;
 					default:
 						terminal.echo(String(message));
 				}
