@@ -131,6 +131,7 @@ Main = (function() {
 
 		// Not found :(
 		this.app.get('*', function notFound(req, res) {
+			logger.info('Not found: ' + req.path);
 			res.status(404).render('404');
 		});
 	};
