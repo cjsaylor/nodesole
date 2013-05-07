@@ -99,6 +99,7 @@ Main = (function() {
 			}
 			res.render('index');
 		});
+
 		// Login route
 		this.app.get('/login', function getLogin(req, res) {
 			logger.info('Rendering /login');
@@ -123,6 +124,11 @@ Main = (function() {
 				logger.error('Configured authentication handler not found: ' + auth);
 			}
 		});
+
+		this.app.get('/favicon.ico', function getFavicon(req, res) {
+			res.sendfile(paths.client + '/favicon.ico');
+		});
+
 		// Not found :(
 		this.app.get('*', function notFound(req, res) {
 			res.status(404).render('404');
