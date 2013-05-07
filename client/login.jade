@@ -1,0 +1,12 @@
+extends layout
+
+block append styles
+	link(href="/css/login.css",rel="stylesheet")
+
+block content
+	.container
+		form(class="form-signin",action="/login",method="post")
+			h2.form-signin-heading Nodesole Auth
+			input.input-block-level(type="text",placeholder="Username",name="username")
+			input.input-block-level(type="password",placeholder="Password",name="password")
+			button.btn.btn-large.btn-primary(type="submit") Sign In

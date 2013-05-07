@@ -1,0 +1,20 @@
+extends layout
+
+block append styles
+	link(href="/css/jquery.terminal.css",rel="stylesheet")
+	link(href="/css/main.css",rel="stylesheet")
+
+block append scripts
+	script(src="/socket.io/socket.io.js")
+	script(src="/js/lib/jquery.terminal.min.js")
+	script(src="/js/config.js")
+	script(src="/js/client.js")
+
+block content
+	#terminal
+	#chat
+		h2 Nodesole Chat
+		#chat-output
+		#chat-input
+			form#chat-input-form(action="/",name="chat-input-form",method="post")
+				textarea#chat-message(name="chat-message",autocomplete="off")

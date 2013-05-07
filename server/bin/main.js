@@ -15,7 +15,8 @@ Main = (function() {
 	paths = {
 		config: Path.join(__dirname, '..', 'config'),
 		lib: Path.join(__dirname, '..', 'src'),
-		plugin: Path.join(__dirname, '..', 'scripts')
+		plugin: Path.join(__dirname, '..', 'scripts'),
+		client: Path.join(__dirname, '../..', 'client')
 	};
 
 	config = require(paths.config);
@@ -27,19 +28,23 @@ Main = (function() {
 
 	command.setAuthenticatedUsers(userCollection);
 
-	clientAssets = {
-		'/config.js': 'config.js',
-		'/client.js': 'js/client.js',
-		'/jquery.terminal.min.js': 'js/lib/jquery.terminal.min.js',
-		'/jquery.terminal.css': 'css/jquery.terminal.css',
-		'/main.css': 'css/main.css',
-		'/favicon.ico': 'favicon.ico',
-		'/login': 'login.html'
-	};
-
 	function Main() {
 		this.app = express();
 		this.server = require('http').createServer(this.app);
+
+		// Setup the express app
+		this.app.use(express.compress());
+		this.app.use(express.cookieParser(config.sessionSecret));
+		this.app.use(express.bodyParser());
+		this.app.use(express.methodOverride());
+		this.app.use(express.session({
+			secret: config.sessionSecret,
+			key: config.sessionKey
+		}));
+		this.app.set('view engine', 'jade');
+		this.app.set('views', paths.client);
+
+		// Setup socket.io
 		io = require('socket.io').listen(this.server);
 		if (config.socketio.minification) {
 			io.enable('browser client minification');
@@ -71,28 +76,19 @@ Main = (function() {
 				accept(null, true);
 			}
 		});
-		this.app.use(express.cookieParser(config.sessionSecret));
-		this.app.use(express.bodyParser());
-		this.app.use(express.methodOverride());
-		this.app.use(express.session({
-			secret: config.sessionSecret,
-			key: config.sessionKey
-		}));
+
 	}
 
 	Main.prototype.setupClient = function() {
-		var app;
-		app = this.app;
-		_.each(clientAssets, function(assetPath, location) {
-			app.get(location, function(req, res) {
-				res.sendfile(Path.join(__dirname, '../..', 'client', assetPath));
-			});
-		});
+		_.each(['js', 'css'], _.bind(function servePublic(dir) {
+			this.app.use('/' + dir, express.static(Path.normalize(paths.client + '/' + dir)));
+		}, this));
 	};
 
 	Main.prototype.setupRoutes = function() {
 		// Main route
-		this.app.get('/', function(req, res) {
+		this.app.get('/', function main(req, res) {
+			logger.info('Rendering /');
 			if (config.authentication.enabled) {
 				if (!(req.session.auth != null)) {
 					return res.redirect('/login');
@@ -101,19 +97,20 @@ Main = (function() {
 			} else {
 				userCollection.addAnonymousUser(req.sessionID);
 			}
-			res.sendfile(Path.join(__dirname, '../..', 'client/index.html'));
+			res.render('index');
 		});
 		// Login route
-		this.app.get('/login', function(req, res) {
+		this.app.get('/login', function getLogin(req, res) {
+			logger.info('Rendering /login');
 			if (req.session.auth != null) {
 				res.redirect('/');
 			}
-			res.sendfile(Path.join(__dirname, '../..', 'client/login.html'));
+			res.render('login');
 		});
-		this.app.post('/login', function(req, res) {
+		this.app.post('/login', function postLogin(req, res) {
 			var auth;
 			auth = Path.join(paths.lib, 'authentication', config.authentication.handler);
-			if (Path.existsSync(auth + '.js')) {
+			if (Fs.existsSync(auth + '.js')) {
 				require(auth)(userCollection, req, function(user) {
 					if (user === false) {
 						res.redirect('/login');
@@ -125,6 +122,10 @@ Main = (function() {
 			} else {
 				logger.error('Configured authentication handler not found: ' + auth);
 			}
+		});
+		// Not found :(
+		this.app.get('*', function notFound(req, res) {
+			res.status(404).render('404');
 		});
 	};
 
