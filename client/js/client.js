@@ -25,15 +25,9 @@ $(function domReady() {
 			}
 		},
 		resizeApp: function(e) {
-			var width = $(window).width(),
-				height = $(window).height();
-			if (width < 1024) {
-				return;
-			}
-			$terminal.width(Math.floor(width * 0.75) - 80);
-			$chat.width(Math.floor(width * 0.25));
+			var height = $(window).height();
+			$terminal.height(Math.floor(height - 75));
 			$chatOutput.height(Math.floor(height - $chatInput.height() - 150));
-			$chatInput.width(Math.floor($chat.width()));
 		}
 	};
 

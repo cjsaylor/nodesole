@@ -33,7 +33,6 @@ Main = (function() {
 		this.server = require('http').createServer(this.app);
 
 		// Setup the express app
-		this.app.use(express.compress());
 		this.app.use(express.cookieParser(config.sessionSecret));
 		this.app.use(express.bodyParser());
 		this.app.use(express.methodOverride());
@@ -88,16 +87,19 @@ Main = (function() {
 	Main.prototype.setupRoutes = function() {
 		// Main route
 		this.app.get('/', function main(req, res) {
+			var user;
 			logger.info('Rendering /');
 			if (config.authentication.enabled) {
 				if (!(req.session.auth != null)) {
 					return res.redirect('/login');
 				}
-				userCollection.restoreUser(req.session.auth);
+				user = userCollection.restoreUser(req.session.auth);
 			} else {
-				userCollection.addAnonymousUser(req.sessionID);
+				user = userCollection.addAnonymousUser(req.sessionID);
 			}
-			res.render('index');
+			res.render('index', {
+				username: user.username
+			});
 		});
 
 		// Login route
@@ -109,8 +111,7 @@ Main = (function() {
 			res.render('login');
 		});
 		this.app.post('/login', function postLogin(req, res) {
-			var auth;
-			auth = Path.join(paths.lib, 'authentication', config.authentication.handler);
+			var auth = Path.join(paths.lib, 'authentication', config.authentication.handler);
 			if (Fs.existsSync(auth + '.js')) {
 				require(auth)(userCollection, req, function(user) {
 					if (user === false) {
@@ -123,6 +124,21 @@ Main = (function() {
 			} else {
 				logger.error('Configured authentication handler not found: ' + auth);
 			}
+		});
+
+		// Logout route
+		this.app.get('/logout', function getLogout(req, res) {
+			logger.info('Processing logout.');
+			if (!req.session.auth) {
+				res.redirect('/login');
+			}
+			var user = userCollection.getUser(req.session.auth.username);
+			if (user) {
+				logger.debug('Removing user from collection');
+				userCollection.removeUser(user);
+			}
+			req.session.auth = null;
+			res.redirect('/login')
 		});
 
 		this.app.get('/favicon.ico', function getFavicon(req, res) {

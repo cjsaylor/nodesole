@@ -34,13 +34,11 @@ UserCollection = (function() {
 	};
 
 	UserCollection.prototype.removeUser = function(user) {
-		var users;
-		users = this.users;
-		return _.each(this.users, function(collectionUser, key) {
+		return _.each(this.users, _.bind(function(collectionUser, key) {
 			if (collectionUser.username === user.username) {
-				return delete users[key];
+				return delete this.users[key];
 			}
-		});
+		}, this));
 	};
 
 	UserCollection.prototype.restoreUser = function(session) {

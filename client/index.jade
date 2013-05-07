@@ -11,10 +11,27 @@ block append scripts
 	script(src="/js/client.js")
 
 block content
-	#terminal
-	#chat
-		h2 Nodesole Chat
-		#chat-output
-		#chat-input
-			form#chat-input-form(action="/",name="chat-input-form",method="post")
-				textarea#chat-message(name="chat-message",autocomplete="off")
+	.navbar.navbar-fixed-top
+		.navbar-inner
+			.container-fluid
+				a(href="#").brand Nodesole
+				ul.nav.pull-right
+					li.divider-vertical
+					li
+						a(href="/logout") Logout
+				p.navbar-text.pull-right
+					span Logged in as #{locals.username}
+				ul.nav
+					li 
+						a(href="#") About
+	.conainer-fluid
+		.row-fluid
+			.span9
+				#terminal
+			.span3
+				#chat
+					h2 Nodesole Chat
+					#chat-output
+					#chat-input
+						form#chat-input-form(action="/",name="chat-input-form",method="post")
+							textarea#chat-message(name="chat-message",autocomplete="off")
