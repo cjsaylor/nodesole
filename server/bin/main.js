@@ -68,7 +68,7 @@ Main = (function() {
 					parsed = require('express/node_modules/connect/lib/utils').parseSignedCookies(cookies, config.sessionSecret);
 				data.sessionID = parsed[config.sessionKey] || null;
 				user = userCollection.getSessionUser(data.sessionID);
-				if (!(user != null)) {
+				if (!user) {
 					accept('Unauthorized.', false);
 					return;
 				}
@@ -131,10 +131,12 @@ Main = (function() {
 			logger.info('Processing logout.');
 			if (!req.session.auth) {
 				res.redirect('/login');
+				return;
 			}
 			var user = userCollection.getUser(req.session.auth.username);
 			if (user) {
 				logger.debug('Removing user from collection');
+				user.socket.disconnect();
 				userCollection.removeUser(user);
 			}
 			req.session.auth = null;
@@ -168,9 +170,11 @@ Main = (function() {
 		io.sockets.on('connection', function(socket) {
 			var user;
 			user = userCollection.getSessionUser(socket.handshake.sessionID);
-			if (user != null) {
-				user.setClientId(socket.id);
+			if (!user) {
+				socket.disconnect();
+				return;
 			}
+			user.setSocket(socket);
 			socket.emit('handshake', {
 				message: 'Connected to host.'
 			});

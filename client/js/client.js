@@ -9,6 +9,7 @@ $(function domReady() {
 	$chatOutput = $('#chat-output');
 
 	var Util = {
+		attempts: 0,
 		echo: function(message, type) {
 			if (typeof terminal === 'undefined') {
 				terminal = $terminal.terminal();
@@ -28,6 +29,12 @@ $(function domReady() {
 			var height = $(window).height();
 			$terminal.height(Math.floor(height - 75));
 			$chatOutput.height(Math.floor(height - $chatInput.height() - 150));
+		},
+		connectionFailed: function() {
+			this.echo('Connection failed!', 'error');
+			setTimeout(function() {
+				window.location.href = '/logout';
+			}, 2000);
 		}
 	};
 
@@ -68,7 +75,10 @@ $(function domReady() {
 	});
 
 	// Server connection
-	var socket = io.connect(nodesole.server);
+	var socket = io.connect(nodesole.server, {
+		'max reconnection attempts': 3,
+		'connect timeout': 5000
+	});
 	socket
 		.on('handshake', function handshakeResponse(data) {
 			Util.echo(data.message);
@@ -87,7 +97,24 @@ $(function domReady() {
 		})
 		.on('client-status', function clientStatusResponse(data) {
 			Util.echo(data.message, typeof data.type !== 'undefined' ? data.type : null);
-		});
+		})
+		.on('reconnecting', function clientReconnecting(data) {
+			if (Util.attempts === 0) {
+				Util.echo('Disconected from the server.', 'error');
+				Util.echo('Attempting to reconnect...', 'connect');
+			}
+			if (++Util.attempts >= 3) {
+				Util.connectionFailed();
+				return;
+			}
+			
+		})
+		.on('reconnect', function clientReconnected(data) {
+			Util.attempts = 0;
+			Util.echo('Connection re-established.', 'connect');
+		})
+		.on('connect_failed', Util.connectionFailed)
+		.on('reconnect_failed', Util.connectionFailed);
 
 	// Handle application display
 	$(window).on('resize', Util.resizeApp);
