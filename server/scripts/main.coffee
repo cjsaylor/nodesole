@@ -14,20 +14,16 @@ module.exports = (command) ->
       message.send(message.createMessageText helpText)
     # ns list
     if commands.ns_list.test(message.data.command)
-      message.send(message.createMessageText '\t' + command.userCollection.toString())
+      message.send(message.createMessageText message.createMessageText '\t' + command.userCollection.toString())
 
   command.register 'chat-request', (message) ->
-    message.broadcast {
+    packet =
       username: message.data.user.username
       message: message.data.message
-    }
-    message.send {
-      username: 'Me'
-      message: message.data.message
-    }
+      html: false
+    message.broadcast message.createMessageText(packet)
+    packet.username = 'Me'
+    message.send message.createMessageText(packet)
 
   command.register 'disconnect', (message) ->
-    message.broadcast {
-      message: message.data.user.username + ' disconnected.',
-      type: 'disconnect'
-    }
+    message.broadcast message.createMessageText message.data.user.username + ' disconnected.', type: 'disconnect'

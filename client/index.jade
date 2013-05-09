@@ -23,14 +23,14 @@ block content
 					span Logged in as #{locals.username}
 				ul.nav
 					li 
-						a(href="#") About
+						a(href="https://github.com/cjsaylor/nodesole/wiki") Help
 	.conainer-fluid
 		.row-fluid
-			.span9
+			.span8
 				#terminal
-			.span3
-				#chat
-					h2 Nodesole Chat
+			.span4
+				#chat.well.well-small
+					h4 Nodesole Chat
 					#chat-output
 					#chat-input
 						form#chat-input-form(action="/",name="chat-input-form",method="post")

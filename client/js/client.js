@@ -27,8 +27,8 @@ $(function domReady() {
 		},
 		resizeApp: function(e) {
 			var height = $(window).height();
-			$terminal.height(Math.floor(height - 75));
-			$chatOutput.height(Math.floor(height - $chatInput.height() - 150));
+			$terminal.height(Math.floor(height - 95));
+			$chatOutput.height(Math.floor(height - $chatInput.height() - 190));
 		},
 		connectionFailed: function() {
 			this.echo('Connection failed!', 'error');
@@ -81,18 +81,19 @@ $(function domReady() {
 	});
 	socket
 		.on('handshake', function handshakeResponse(data) {
-			Util.echo(data.message);
+			Util.echo(data.message, data.type);
 		})
 		.on('command-response', function commandResponse(data) {
 			Util.echo(data.message, typeof data.type !== 'undefined' ? data.type : null);
 		})
 		.on('chat-response', function chatResponse(data) {
-			var now = new Date();
-			$chatOutput.append(
-				$('<p/>').text(
-					now.toTimeString() + ' - ' + data.username + ': ' + data.message
-				)
-			);
+			var now, $chatRecord;
+			now = new Date(data.date);
+			$chatRecord = data.html ?
+				$('<p/>').html(now.toTimeString() + ' - ' + data.username + ': ' + data.message) :
+				$('<p/>').text(now.toTimeString() + ' - ' + data.username + ': ' + data.message)
+
+			$chatOutput.append($chatRecord);
 			$chatOutput.scrollTop($chatOutput.prop('scrollHeight'));
 		})
 		.on('client-status', function clientStatusResponse(data) {

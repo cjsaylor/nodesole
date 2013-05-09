@@ -176,7 +176,8 @@ Main = (function() {
 			}
 			user.setSocket(socket);
 			socket.emit('handshake', {
-				message: 'Connected to host.'
+				message: 'Connected to host.',
+				type: 'connect'
 			});
 			socket.broadcast.emit('client-status', {
 				message: user.username + ' connected.',

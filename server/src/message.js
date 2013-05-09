@@ -1,4 +1,6 @@
-var Message;
+var Message, _;
+
+_ = require('underscore');
 
 Message = (function() {
 
@@ -29,11 +31,13 @@ Message = (function() {
 
 	Message.prototype.createMessageText = function(message, type) {
 		type = type || 'none';
-		return {
-			message: message,
+		if (typeof message !== 'object') {
+			message = {message: message};
+		}
+		return _.extend({
 			type: type,
 			date: new Date().getTime()
-		};
+		}, message);
 	};
 
 	Message.prototype.isHandled = function() {
