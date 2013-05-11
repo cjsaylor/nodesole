@@ -13,6 +13,7 @@ Main = (function() {
 	var Message, UserCollection, clientAssets, command, config, io, logger, paths, userCollection, app, server;
 
 	paths = {
+		root: Path.join(__dirname, '../..'),
 		config: Path.join(__dirname, '..', 'config'),
 		lib: Path.join(__dirname, '..', 'src'),
 		plugin: Path.join(__dirname, '..', 'scripts'),
@@ -22,8 +23,10 @@ Main = (function() {
 	config = require(paths.config);
 	Message = require(paths.lib + '/message');
 	UserCollection = require(paths.lib + '/usercollection');
+	User = require(paths.lib + '/user');
 	command = new (require(paths.lib + '/command'));
 	logger = require(paths.lib + '/logger');
+
 	userCollection = new UserCollection();
 
 	command.setAuthenticatedUsers(userCollection);
@@ -62,18 +65,37 @@ Main = (function() {
 		});
 		io.set('log level', socketLogLevels.indexOf(config.logLevel));
 		io.set('authorization', function(data, accept) {
-			var user;
+			var user, apiUsers, apiUser;
 			if (data.headers.cookie) {
 				var cookies = require('express/node_modules/cookie').parse(data.headers.cookie), 
 					parsed = require('express/node_modules/connect/lib/utils').parseSignedCookies(cookies, config.sessionSecret);
 				data.sessionID = parsed[config.sessionKey] || null;
 				user = userCollection.getSessionUser(data.sessionID);
 				if (!user) {
-					accept('Unauthorized.', false);
-					return;
+					return accept('Unauthorized.', false);
 				}
-				accept(null, true);
+				return accept(null, true);
+			} else if (typeof data.query.key != 'undefined') {
+				try {
+					apiUsers = require(paths.root + '/api.json');
+				} catch (e) {
+					return accept('API Key file not defined.', false);
+				}
+				
+				if (!apiUsers) {
+					return accept('No API key defined.', false);
+				}
+				user = _.find(apiUsers, function(apiUser) {
+					return data.query.key === apiUser.key;
+				});
+				if (!user) {
+					return accept('Invalid API key.', false);
+				}
+				user = new User(user.username);
+				userCollection.addUser(user);
+				return accept(null, true);
 			}
+			accept('No authorization mechanism could authorize.', false);
 		});
 
 	}

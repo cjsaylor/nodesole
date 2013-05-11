@@ -42,10 +42,35 @@ for the creation of custom commands and actions.
 
 See [nodesole-scripts](https://github.com/cjsaylor/nodesole-scripts) for implementation details.
 
+## Socket.io connection via API Key
+
+It is possible to connect to Nodesole's socket.io interface through with use of an access key:
+
+1. Create `api.json` in the root directory of nodesole.
+2. Added an array of users you wish to have access via an API key (see `a` below).
+3. When creating the connection, set the query option to contain the API key (see `b` below)
+
+`a`:
+
+```
+[
+	{
+		"username": "someuser",
+		"key": "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3"
+	}
+]
+```
+
+`b`:
+
+```javascript
+var socket = io.connect('localhost', {
+	query: 'key=a94a8fe5ccb19ba61c4c0873d391e987982fbbd3'
+});
+```
+
 ## Roadmap
 
-* Small json API for posting events to chat/console.
-* Organize client app with jade.
 * Test cases for server app.
 * Logging throughout event structure of server app.
 

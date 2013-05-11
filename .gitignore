@@ -16,6 +16,7 @@ npm-debug.log
 
 server/config.js
 client/js/config.js
+api.json
 
 server/scripts/*
 !server/scripts/main.coffee
