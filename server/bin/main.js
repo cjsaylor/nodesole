@@ -65,11 +65,13 @@ Main = (function() {
 		});
 		io.set('log level', socketLogLevels.indexOf(config.logLevel));
 		io.set('authorization', function(data, accept) {
-			var user, apiUsers, apiUser;
+			var user, apiUsers, apiUser, cookies;
 			if (data.headers.cookie) {
-				var cookies = require('express/node_modules/cookie').parse(data.headers.cookie), 
-					parsed = require('express/node_modules/connect/lib/utils').parseSignedCookies(cookies, config.sessionSecret);
-				data.sessionID = parsed[config.sessionKey] || null;
+				cookies = require('express/node_modules/connect/lib/utils').parseSignedCookies(
+					require('express/node_modules/cookie').parse(data.headers.cookie), 
+					config.sessionSecret
+				);
+				data.sessionID = cookies[config.sessionKey] || null;
 				user = userCollection.getSessionUser(data.sessionID);
 				if (!user) {
 					return accept('Unauthorized.', false);
@@ -133,19 +135,21 @@ Main = (function() {
 			res.render('login');
 		});
 		this.app.post('/login', function postLogin(req, res) {
-			var auth = Path.join(paths.lib, 'authentication', config.authentication.handler);
-			if (Fs.existsSync(auth + '.js')) {
-				require(auth)(userCollection, req, function(user) {
-					if (user === false) {
-						res.redirect('/login');
-					} else {
-						user.setSessionId(req.sessionID);
-						res.redirect('/');
-					}
-				});
-			} else {
-				logger.error('Configured authentication handler not found: ' + auth);
+			var authHandler;
+			try {
+				authHandler = require(Path.join(paths.lib, 'authentication', config.authentication.handler) + '.js');
+			} catch (e) {
+				logger.error('Configured authentication handler not found.');
+				return res.redirect('/login');
 			}
+			authHandler(userCollection, req, function authHandlerCallback(user) {
+				if (user === false) {
+					res.redirect('/login');
+				} else {
+					user.setSessionId(req.sessionID);
+					res.redirect('/');
+				}
+			});
 		});
 
 		// Logout route
