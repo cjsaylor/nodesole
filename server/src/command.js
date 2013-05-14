@@ -16,7 +16,8 @@ Command = (function() {
 
 	config = {};
 
-	function Command() {}
+	function Command() {
+	}
 
 	Command.prototype.setAuthenticatedUsers = function(userCollection) {
 		this.userCollection = userCollection;
@@ -30,7 +31,7 @@ Command = (function() {
 
 	Command.prototype.trigger = function(event, message) {
 		if (_.has(events, event)) {
-			return _.each(events[event], function(func) {
+			_.each(events[event], function(func) {
 				return func(message);
 			});
 		}
@@ -49,13 +50,7 @@ Command = (function() {
 	};
 
 	Command.prototype.helpToString = function() {
-		var helpStr, str, _i, _len;
-		helpStr = '';
-		for (_i = 0, _len = help.length; _i < _len; _i++) {
-			str = help[_i];
-			helpStr += str;
-		}
-		return helpStr;
+		return help.join('');
 	};
 
 	return Command;
